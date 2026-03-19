@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easy Support</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="loader" id="loader">
+        <div class="loader-content">
+            <div class="loader-spinner"></div>
+            <p>Easy Support</p>
+        </div>
+    </div>
+
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close">✕</span>
+        <img id="lightboxImg" src="" alt="Foto">
+    </div>
+
+    <div class="modal-overlay" id="passwordModal">
+        <div class="password-modal">
+            <h2>🔐 Admin</h2>
+            <input type="password" class="password-input" id="passwordInput" placeholder="••••" maxlength="4">
+            <div>
+                <button class="modal-btn cancel" onclick="closePasswordModal()">Cancelar</button>
+                <button class="modal-btn confirm" onclick="checkPassword()">Entrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="access-denied" id="accessDenied">
+        <h3>⚠️ Acesso Negado!</h3>
+        <p>Somente administrador.</p>
+    </div>
+
+    <div class="app-container">
+        <header>
+            <div class="logo">⚡ Easy Support</div>
+            <button class="admin-btn" onclick="openPasswordModal()">+</button>
+        </header>
+
+        <div class="search-container">
+            <input type="text" class="search-box" id="searchBox" placeholder="Pesquisar atualizações..." onkeyup="searchContent()">
+            <button class="search-btn" onclick="searchContent()">🔍</button>
+        </div>
+
+        <!-- Painel Admin -->
+        <div class="admin-panel" id="adminPanel">
+            <h2>🎛️ Painel Administrativo</h2>
+            
+            <form id="contentForm" onsubmit="addContent(event)">
+                <div class="form-group">
+                    <label>Título</label>
+                    <input type="text" id="contentTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea id="contentDesc" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Data</label>
+                    <input type="date" id="contentDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select id="contentCategory">
+                        <option value="geral">Geral</option>
+                        <option value="escola">Escola</option>
+                        <option value="aviso">Aviso Importante</option>
+                        <option value="evento">Evento</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fotos (máx 5)</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="contentImages" accept="image/*" multiple onchange="previewImages()">
+                        <label for="contentImages" class="file-input-label">📷 Clique para adicionar fotos</label>
+                    </div>
+                    <div class="preview-container" id="previewContainer"></div>
+                </div>
+                <div class="form-group">
+                    <label>Tags (separadas por vírgula)</label>
+                    <input type="text" id="contentTags" placeholder="ex: prova, importante, urgente">
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="contentPinned">
+                    <label for="contentPinned">📌 Fixar no topo</label>
+                </div>
+                <button type="submit" class="submit-btn">📤 Publicar Atualização</button>
+            </form>
+
+            <hr style="margin: 30px 0; border-color: rgba(255,255,255,0.1);">
+
+            <!-- Editor de Horários -->
+            <h3>📚 Editar Horários de Aula</h3>
+            <div class="schedule-form">
+                <select id="scheduleDaySelect">
+                    <option value="1">Segunda</option>
+                    <option value="2">Terça</option>
+                    <option value="3">Quarta</option>
+                    <option value="4">Quinta</option>
+                    <option value="5">Sexta</option>
+                </select>
+                <input type="time" id="scheduleTime" required>
+                <input type="text" id="scheduleSubject" placeholder="Matéria" required>
+                <input type="text" id="scheduleRoom" placeholder="Sala" required>
+                <button type="button" class="add-schedule-btn" onclick="addScheduleItem()">+</button>
+            </div>
+            <div class="current-schedule-list" id="currentScheduleList"></div>
+
+            <hr style="margin: 30px 0; border-color: rgba(255,255,255,0.1);">
+
+            <!-- Lixeira -->
+            <h3>🗑️ Lixeira</h3>
+            <div id="trashList"></div>
+            <button class="empty-trash-btn" onclick="emptyTrash()">🗑️ Esvaziar Lixeira Permanentemente</button>
+        </div>
+
+        <!-- Horários -->
+        <div class="schedule-section">
+            <div class="schedule-header">
+                <h2 class="schedule-title">📚 Horários Escolares</h2>
+            </div>
+            <div class="day-tabs">
+                <button class="day-tab active" onclick="changeDay(0)">Dom</button>
+                <button class="day-tab" onclick="changeDay(1)">Seg</button>
+                <button class="day-tab" onclick="changeDay(2)">Ter</button>
+                <button class="day-tab" onclick="changeDay(3)">Qua</button>
+                <button class="day-tab" onclick="changeDay(4)">Qui</button>
+                <button class="day-tab" onclick="changeDay(5)">Sex</button>
+                <button class="day-tab" onclick="changeDay(6)">Sáb</button>
+            </div>
+            <div id="scheduleContainer"></div>
+        </div>
+
+        <!-- Conteúdo -->
+        <div class="content-grid" id="contentGrid"></div>
+    </div>
+
+    <!-- Bot (não clicável, balão sempre em cima) -->
+    <div class="bot-area">
+        <div class="bot-wrapper pos-center" id="botWrapper">
+            <div class="bot-speech-bubble" id="botBubble">
+                <div id="botMessage">Olá!</div>
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+            <div class="bot-character" id="botCharacter">
+                <div class="bot-badge" id="botBadge">!</div>
+                <div class="bot-head">
+                    <div class="bot-eye left"></div>
+                    <div class="bot-eye right"></div>
+                </div>
+                <div class="bot-body"></div>
+                <div class="bot-arm left"></div>
+                <div class="bot-arm right"></div>
+                <div class="bot-leg left"></div>
+                <div class="bot-leg right"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="bot.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
