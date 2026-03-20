@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Easy Support - 1º INFO T2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+* {margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent}
+:root {--primary: #6366f1; --secondary: #ec4899; --accent: #8b5cf6; --dark: #0f172a; --darker: #020617; --glass: rgba(255,255,255,0.05); --glass-border: rgba(255,255,255,0.1)}
+body {font-family: 'Poppins',sans-serif; background: linear-gradient(135deg,var(--darker) 0%,var(--dark) 50%,#1e1b4b 100%); min-height: 100vh; color: #fff; overflow-x: hidden}
+.bg-animation {position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden}
+.bg-animation span {position: absolute; width: 50px; height: 50px; background: var(--primary); border-radius: 50%; filter: blur(60px); animation: float 20s infinite; opacity: 0.3}
+.bg-animation span:nth-child(1) {top: 20%; left: 20%}
+.bg-animation span:nth-child(2) {top: 60%; left: 80%; animation-delay: 5s; background: var(--secondary)}
+.bg-animation span:nth-child(3) {top: 40%; left: 40%; animation-delay: 10s; background: var(--accent)}
+.bg-animation span:nth-child(4) {top: 80%; left: 10%; animation-delay: 15s; background: #06b6d4}
+@keyframes float {0%,100% {transform: translate(0,0) scale(1)} 33% {transform: translate(30px,-50px) scale(1.2)} 66% {transform: translate(-20px,20px) scale(0.8)}}
+.app-container {max-width: 100%; margin: 0 auto; padding: 15px; padding-bottom: 180px}
+header {background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 15px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 8px 32px rgba(0,0,0,0.3)}
+.logo {font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg,var(--primary),var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 8px}
+.logo::before {content: "⚡"; font-size: 1.3rem; -webkit-text-fill-color: var(--primary); animation: pulse 2s infinite}
+@keyframes pulse {0%,100% {transform: scale(1)} 50% {transform: scale(1.2)}}
+.search-container {margin-bottom: 20px; position: relative}
+.search-box {width: 100%; padding: 15px 50px 15px 20px; border: 2px solid var(--glass-border); border-radius: 25px; background: rgba(255,255,255,0.05); color: #fff; font-size: 1rem; outline: none; font-family: 'Poppins',sans-serif}
+.search-box::placeholder {color: rgba(255,255,255,0.5)}
+.search-btn {position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: linear-gradient(135deg,var(--primary),var(--accent)); border: none; width: 40px; height: 40px; border-radius: 50%; color: #fff; cursor: pointer; font-size: 1.2rem}
+.modal-overlay {position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 2000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s}
+.modal-overlay.active {display: flex; opacity: 1}
+.register-modal {background: linear-gradient(135deg,var(--dark),#1e293b); padding: 30px; border-radius: 25px; border: 1px solid var(--glass-border); width: 90%; max-width: 350px; transform: scale(0.8); transition: transform 0.3s; max-height: 90vh; overflow-y: auto}
+.modal-overlay.active .register-modal {transform: scale(1)}
+.register-modal h2 {color: var(--secondary); margin-bottom: 20px; font-size: 1.5rem; text-align: center}
+.register-modal h2::before {content: "👋 "; font-size: 1.8rem}
+.form-group {margin-bottom: 15px}
+.form-group label {display: block; margin-bottom: 5px; color: rgba(255,255,255,0.8); font-size: 0.9rem; font-weight: 500}
+.form-group input,.form-group select {width: 100%; padding: 12px 15px; border: 2px solid var(--glass-border); border-radius: 12px; background: rgba(255,255,255,0.05); color: #fff; font-family: 'Poppins',sans-serif; font-size: 0.95rem; outline: none}
+.form-group input::placeholder {color: rgba(255,255,255,0.3)}
+.gender-options {display: flex; gap: 10px; margin-top: 5px}
+.gender-option {flex: 1; padding: 10px; border: 2px solid var(--glass-border); border-radius: 12px; background: rgba(255,255,255,0.05); text-align: center; cursor: pointer; transition: all 0.3s}
+.gender-option.selected {background: linear-gradient(135deg,var(--primary),var(--accent)); border-color: transparent}
+.gender-option .emoji {font-size: 1.5rem; display: block; margin-bottom: 3px}
+.submit-btn {background: linear-gradient(135deg,var(--primary),var(--accent)); border: none; padding: 15px; border-radius: 25px; color: #fff; font-weight: 700; cursor: pointer; width: 100%; font-size: 1rem; margin-top: 10px}
+.lightbox {position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 4000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s}
+.lightbox.active {display: flex; opacity: 1}
+.lightbox img {max-width: 95%; max-height: 85%; border-radius: 15px}
+.lightbox-close {position: absolute; top: 20px; right: 20px; font-size: 2.5rem; color: #fff; background: none; border: none; cursor: pointer}
+.schedule-section {background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; margin-bottom: 20px}
+.schedule-header {display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px}
+.schedule-title {font-size: 1.2rem; display: flex; align-items: center; gap: 8px}
+.day-tabs {display: flex; gap: 5px; overflow-x: auto; padding-bottom: 5px; margin-bottom: 15px}
+.day-tab {padding: 8px 15px; border: none; border-radius: 20px; background: rgba(255,255,255,0.05); color: #fff; cursor: pointer; font-size: 0.85rem; font-weight: 500; white-space: nowrap}
+.day-tab.active {background: linear-gradient(135deg,var(--primary),var(--accent))}
+.schedule-day-container {display: none}
+.schedule-day-container.active {display: block}
+.day-title {text-align: center; margin-bottom: 15px; color: var(--secondary); font-size: 1.1rem; font-weight: 600}
+.time-slot {display: flex; align-items: center; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 12px; margin-bottom: 8px; border-left: 3px solid var(--primary)}
+.time {font-weight: 700; color: var(--primary); min-width: 70px; font-size: 0.9rem}
+.subject {flex: 1; font-size: 0.95rem; padding: 0 10px}
+.professor {color: rgba(255,255,255,0.6); font-size: 0.8rem; text-align: right; min-width: 100px}
+.rest-day {text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.7)}
+.rest-day-icon {font-size: 3rem; margin-bottom: 10px}
+.content-grid {display: grid; gap: 15px}
+.content-card {background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; position: relative; overflow: hidden}
+.content-card::before {content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg,var(--primary),var(--secondary)); transform: scaleX(0); transition: transform 0.3s}
+.content-card:hover::before {transform: scaleX(1)}
+.card-header {display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px}
+.card-title {font-size: 1.1rem; font-weight: 700; margin-bottom: 3px}
+.card-date {font-size: 0.75rem; color: rgba(255,255,255,0.6)}
+.card-content {color: rgba(255,255,255,0.8); font-size: 0.9rem; line-height: 1.5; margin-bottom: 15px; white-space: pre-line}
+.card-images {display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 15px}
+.card-image {width: 100%; height: 250px; object-fit: cover; border-radius: 15px; border: 2px solid rgba(255,255,255,0.1)}
+.card-tags {display: flex; gap: 5px; flex-wrap: wrap}
+.tag {background: rgba(99,102,241,0.2); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: var(--primary)}
+.bot-area {position: fixed; bottom: 0; left: 0; width: 100%; height: 120px; pointer-events: none; z-index: 1000}
+.bot-wrapper {position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); pointer-events: all; display: flex; flex-direction: column; align-items: center}
+.bot-character {width: 70px; height: 85px; position: relative; cursor: pointer; filter: drop-shadow(0 5px 15px rgba(6,182,212,0.4))}
+.bot-body {width: 50px; height: 55px; background: linear-gradient(180deg,#06b6d4 0%,#3b82f6 100%); border-radius: 25px 25px 18px 18px; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); border: 2px solid rgba(255,255,255,0.3); animation: breathe 3s ease-in-out infinite}
+.bot-head {width: 45px; height: 45px; background: linear-gradient(180deg,#22d3ee 0%,#06b6d4 100%); border-radius: 50%; position: absolute; top: 0; left: 50%; transform: translateX(-50%); border: 2px solid rgba(255,255,255,0.3); animation: headMove 4s ease-in-out infinite}
+.bot-eye {width: 7px; height: 7px; background: #fff; border-radius: 50%; position: absolute; top: 35%; animation: blink 4s infinite}
+.bot-eye.left {left: 25%}
+.bot-eye.right {right: 25%}
+@keyframes breathe {0%,100% {transform: translateX(-50%) scaleY(1)} 50% {transform: translateX(-50%) scaleY(1.05)}}
+@keyframes headMove {0%,100% {transform: translateX(-50%) rotate(0deg)} 25% {transform: translateX(-50%) rotate(-3deg)} 75% {transform: translateX(-50%) rotate(3deg)}}
+@keyframes blink {0%,96%,100% {transform: scaleY(1)} 98% {transform: scaleY(0.1)}}
+.bot-arm {width: 12px; height: 22px; background: linear-gradient(180deg,#06b6d4,#3b82f6); border-radius: 10px; position: absolute; bottom: 18px; border: 2px solid rgba(255,255,255,0.3)}
+.bot-arm.left {left: -4px; transform: rotate(-10deg)}
+.bot-arm.right {right: -4px; transform: rotate(10deg)}
+.bot-leg {width: 12px; height: 14px; background: #1e40af; border-radius: 0 0 10px 10px; position: absolute; bottom: -10px}
+.bot-leg.left {left: 28%}
+.bot-leg.right {right: 28%}
+.bot-badge {position: absolute; top: -5px; right: -10px; background: #ef4444; color: #fff; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; animation: bounce 1s infinite; display: none}
+.bot-badge.show {display: flex}
+@keyframes bounce {0%,100% {transform: scale(1)} 50% {transform: scale(1.2)}}
+.bot-speech-bubble {position: relative; margin-bottom: 15px; background: #fff; color: #1e293b; padding: 15px 20px; border-radius: 20px; font-size: 0.9rem; max-width: 300px; min-width: 250px; width: max-content; box-shadow: 0 5px 20px rgba(0,0,0,0.2); opacity: 0; transform: scale(0); transition: all 0.3s; pointer-events: none; z-index: 1001; text-align: center}
+.bot-speech-bubble.show {opacity: 1; transform: scale(1)}
+.bot-speech-bubble::after {content: ""; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 10px solid #fff}
+.typing-indicator {display: flex; gap: 4px; justify-content: center; margin-top: 8px}
+.typing-dot {width: 6px; height: 6px; background: var(--primary); border-radius: 50%; animation: typing 1.4s infinite}
+.typing-dot:nth-child(2) {animation-delay: 0.2s}
+.typing-dot:nth-child(3) {animation-delay: 0.4s}
+@keyframes typing {0%,100% {transform: translateY(0)} 50% {transform: translateY(-5px)}}
+.user-info {position: fixed; top: 20px; right: 20px; background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 20px; font-size: 0.8rem; display: none; z-index: 100}
+.user-info.show {display: block}
+.welcome-back {text-align: center; padding: 20px; color: rgba(255,255,255,0.7); font-size: 0.9rem}
+.empty-state {text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.5)}
+.empty-state-icon {font-size: 3rem; margin-bottom: 15px}
+</style>
+</head>
+<body>
+<div class="bg-animation">
+<span></span><span></span><span></span><span></span>
+</div>
+
+<div class="modal-overlay" id="registerModal">
+<div class="register-modal">
+<h2>Bem-vindo ao Easy Support</h2>
+<p style="text-align:center;color:rgba(255,255,255,0.7);margin-bottom:20px;font-size:0.9rem">Complete seu cadastro para começar</p>
+<div class="form-group">
+<label>Seu nome completo</label>
+<input type="text" id="userName" placeholder="Ex: Maria Silva Santos" required>
+</div>
+<div class="form-group">
+<label>Idade</label>
+<input type="number" id="userAge" placeholder="Ex: 16" min="10" max="100" required>
+</div>
+<div class="form-group">
+<label>Gênero</label>
+<div class="gender-options">
+<div class="gender-option" onclick="selectGender('M')" id="genderM">
+<span class="emoji">👨</span>Masculino
+</div>
+<div class="gender-option" onclick="selectGender('F')" id="genderF">
+<span class="emoji">👩</span>Feminino
+</div>
+</div>
+<input type="hidden" id="userGender" required>
+</div>
+<div class="form-group">
+<label>Data de entrada</label>
+<input type="text" id="entryDate" readonly style="background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.5)">
+</div>
+<button class="submit-btn" onclick="registerUser()">Começar 🚀</button>
+</div>
+</div>
+
+<div class="lightbox" id="lightbox">
+<button class="lightbox-close" onclick="closeLightbox()">✕</button>
+<img id="lightboxImg" src="" alt="Foto">
+</div>
+
+<div class="user-info" id="userInfo"></div>
+
+<div class="app-container">
+<header>
+<div class="logo">Easy Support</div>
+</header>
+
+<div class="search-container">
+<input type="text" class="search-box" id="searchBox" placeholder="Pesquisar avisos..." onkeyup="searchContent()">
+<button class="search-btn" onclick="searchContent()">🔍</button>
+</div>
+
+<div class="welcome-back" id="welcomeMsg"></div>
+
+<div class="schedule-section">
+<div class="schedule-header">
+<div class="schedule-title">📚 Horários 1º INFO T2</div>
+</div>
+<div class="day-tabs">
+<button class="day-tab active" onclick="changeDay(0)">Dom</button>
+<button class="day-tab" onclick="changeDay(1)">Seg</button>
+<button class="day-tab" onclick="changeDay(2)">Ter</button>
+<button class="day-tab" onclick="changeDay(3)">Qua</button>
+<button class="day-tab" onclick="changeDay(4)">Qui</button>
+<button class="day-tab" onclick="changeDay(5)">Sex</button>
+<button class="day-tab" onclick="changeDay(6)">Sáb</button>
+</div>
+
+<div class="schedule-day-container active" id="day-0">
+<div class="day-title">Domingo 😴</div>
+<div class="rest-day">
+<div class="rest-day-icon">🌴</div>
+<p>Dia de descanso! Aproveite seu fim de semana.</p>
+</div>
+</div>
+
+<div class="schedule-day-container" id="day-1">
+<div class="day-title">Segunda-feira 📚</div>
+<div class="time-slot">
+<div class="time">07:30</div>
+<div class="subject">Algoritmo</div>
+<div class="professor">Izael</div>
+</div>
+<div class="time-slot">
+<div class="time">08:20</div>
+<div class="subject">Redes de Computadores</div>
+<div class="professor">Francismar</div>
+</div>
+<div class="time-slot">
+<div class="time">09:10</div>
+<div class="subject">Redes de Computadores</div>
+<div class="professor">Francismar</div>
+</div>
+<div class="time-slot">
+<div class="time">10:00</div>
+<div class="subject">Biologia</div>
+<div class="professor">Manuela</div>
+</div>
+<div class="time-slot">
+<div class="time">10:20</div>
+<div class="subject">Fund. Arquitetura de Computadores</div>
+<div class="professor">Tiago</div>
+</div>
+</div>
+
+<div class="schedule-day-container" id="day-2">
+<div class="day-title">Terça-feira 📚</div>
+<div class="time-slot">
+<div class="time">07:30</div>
+<div class="subject">Arte</div>
+<div class="professor">Everton</div>
+</div>
+<div class="time-slot">
+<div class="time">08:20</div>
+<div class="subject">Química</div>
+<div class="professor">Daise</div>
+</div>
+<div class="time-slot">
+<div class="time">09:10</div>
+<div class="subject">Iniciação Científica</div>
+<div class="professor">Maianne</div>
+</div>
+<div class="time-slot">
+<div class="time">10:00</div>
+<div class="subject">Geografia</div>
+<div class="professor">Paulo Cerqueira</div>
+</div>
+<div class="time-slot">
+<div class="time">10:20</div>
+<div class="subject">Geografia</div>
+<div class="professor">Paulo Cerqueira</div>
+</div>
+</div>
+
+<div class="schedule-day-container" id="day-3">
+<div class="day-title">Quarta-feira 📚</div>
+<div class="time-slot">
+<div class="time">07:30</div>
+<div class="subject">Projeto Tecnológico Social</div>
+<div class="professor">Élder</div>
+</div>
+<div class="time-slot">
+<div class="time">08:20</div>
+<div class="subject">Fund. Arquitetura de Computadores</div>
+<div class="professor">Tiago</div>
+</div>
+<div class="time-slot">
+<div class="time">09:10</div>
+<div class="subject">Inglês</div>
+<div class="professor">Ivna</div>
+</div>
+<div class="time-slot">
+<div class="time">10:00</div>
+<div class="subject">Sistemas Operacionais</div>
+<div class="professor">Disney</div>
+</div>
+<div class="time-slot">
+<div class="time">10:20</div>
+<div class="subject">História</div>
+<div class="professor">Albione</div>
+</div>
+</div>
+
+<div class="schedule-day-container" id="day-4">
+<div class="day-title">Quinta-feira 📚</div>
+<div class="time-slot">
+<div class="time">07:30</div>
+<div class="subject">Português</div>
+<div class="professor">Mirian</div>
+</div>
+<div class="time-slot">
+<div class="time">08:20</div>
+<div class="subject">Português</div>
+<div class="professor">Mirian</div>
+</div>
+<div class="time-slot">
+<div class="time">09:10</div>
+<div class="subject">Educação Digital</div>
+<div class="professor">Maianne</div>
+</div>
+<div class="time-slot">
+<div class="time">10:00</div>
+<div class="subject">Educação Física</div>
+<div class="professor">Ademário</div>
+</div>
+<div class="time-slot">
+<div class="time">10:20</div>
+<div class="subject">Química</div>
+<div class="professor">Daise</div>
+</div>
+</div>
+
+<div class="schedule-day-container" id="day-5">
+<div class="day-title">Sexta-feira 📚</div>
+<div class="time-slot">
+<div class="time">07:30</div>
+<div class="subject">Estudo Aprofundado</div>
+<div class="professor">Ivna</div>
+</div>
+<div class="time-slot">
+<div class="time">08:20</div>
+<div class="subject">Biologia</div>
+<div class="professor">Manuela</div>
+</div>
+<div class="time-slot">
+<div class="time">09:10</div>
+<div class="subject">Matemática</div>
+<div class="professor">Luciana</div>
+</div>
+<div class="time-slot">
+<div class="time">10:00</div>
+<div class="subject">Estudo Aprofundado</div>
+<div class="professor">Ivna</div>
+</div>
+<div class="time-slot">
+<div class="time">10:20</div>
+<div class="subject">Mídias Digitais</div>
+<div class="professor">Disney</div>
+</div>
+</div>
+
+<div class="schedule-day-container" id="day-6">
+<div class="day-title">Sábado 😴</div>
+<div class="rest-day">
+<div class="rest-day-icon">🎮</div>
+<p>Dia de descanso! Aproveite seu fim de semana.</p>
+</div>
+</div>
+</div>
+
+<div class="content-grid" id="contentGrid"></div>
+</div>
+
+<div class="bot-area">
+<div class="bot-wrapper" id="botWrapper">
+<div class="bot-speech-bubble" id="botBubble">
+<div id="botMessage">Oi! Sou o Bot!</div>
+<div class="typing-indicator" id="typingIndicator">
+<div class="typing-dot"></div>
+<div class="typing-dot"></div>
+<div class="typing-dot"></div>
+</div>
+</div>
+<div class="bot-character" id="botCharacter" onclick="botInteract()">
+<div class="bot-badge" id="botBadge">!</div>
+<div class="bot-head">
+<div class="bot-eye left"></div>
+<div class="bot-eye right"></div>
+</div>
+<div class="bot-body"></div>
+<div class="bot-arm left"></div>
+<div class="bot-arm right"></div>
+<div class="bot-leg left"></div>
+<div class="bot-leg right"></div>
+</div>
+</div>
+</div><script>
+const APP_CONFIG = {
+appMode: true,
+dataPath: 'easysupport_',
+version: '1.0'
+};
+
+const STORAGE = {
+get: function(k, d) {
+try {
+const v = localStorage.getItem(APP_CONFIG.dataPath + k);
+return v ? JSON.parse(v) : d;
+} catch(e) {
+return d;
+}
+},
+set: function(k, v) {
+try {
+localStorage.setItem(APP_CONFIG.dataPath + k, JSON.stringify(v));
+return true;
+} catch(e) {
+return false;
+}
+},
+remove: function(k) {
+try {
+localStorage.removeItem(APP_CONFIG.dataPath + k);
+return true;
+} catch(e) {
+return false;
+}
+}
+};
+
+let currentUser = null;
+let state = {
+contents: [],
+currentDay: new Date().getDay()
+};
+
+function initUser() {
+const saved = STORAGE.get('user', null);
+if(saved) {
+currentUser = saved;
+hideRegisterModal();
+showUserInfo();
+initBotWithUser();
+initData();
+} else {
+showRegisterModal();
+}
+}
+
+function showRegisterModal() {
+document.getElementById('registerModal').classList.add('active');
+document.getElementById('entryDate').value = new Date().toLocaleDateString('pt-BR');
+}
+
+function hideRegisterModal() {
+document.getElementById('registerModal').classList.remove('active');
+}
+
+function selectGender(g) {
+document.getElementById('userGender').value = g;
+document.getElementById('genderM').classList.toggle('selected', g === 'M');
+document.getElementById('genderF').classList.toggle('selected', g === 'F');
+}
+
+function getFirstName(fullName) {
+return fullName.trim().split(' ')[0];
+}
+
+function registerUser() {
+const name = document.getElementById('userName').value.trim();
+const age = parseInt(document.getElementById('userAge').value);
+const gender = document.getElementById('userGender').value;
+
+if(!name || name.length < 3) {
+alert('Por favor, digite seu nome completo (mínimo 3 letras)');
+return;
+}
+
+if(!age || age < 10 || age > 100) {
+alert('Por favor, digite uma idade válida (10-100 anos)');
+return;
+}
+
+if(!gender) {
+alert('Por favor, selecione seu gênero');
+return;
+}
+
+currentUser = {
+name: name,
+firstName: getFirstName(name),
+age: age,
+gender: gender,
+entryDate: new Date().toISOString(),
+registeredAt: new Date().toLocaleString('pt-BR')
+};
+
+STORAGE.set('user', currentUser);
+hideRegisterModal();
+showUserInfo();
+initData();
+initBotWithUser();
+}
+
+function showUserInfo() {
+if(!currentUser) return;
+const info = document.getElementById('userInfo');
+const welcome = document.getElementById('welcomeMsg');
+const emoji = currentUser.gender === 'M' ? '👨' : '👩';
+info.innerHTML = emoji + ' ' + currentUser.firstName + ' • ' + currentUser.age + ' anos';
+info.classList.add('show');
+welcome.innerHTML = '👋 Olá, <strong>' + currentUser.firstName + '</strong>! Bem-vindo de volta ao Easy Support.';
+}
+
+function initData() {
+state.contents = STORAGE.get('contents', []);
+if(state.contents.length === 0) {
+const firstName = currentUser ? currentUser.firstName : 'aluno';
+state.contents = [{
+id: 1,
+title: "Bem-vindo ao Easy Support!",
+desc: "Olá " + firstName + "! 👋\n\nEste é seu assistente escolar para o 1º INFO T2. Aqui você encontra:\n\n📚 Horários completos de Segunda a Sexta\n👨‍🏫 Professores de cada matéria\n🔔 Lembretes automáticos às 5h e 17h\n🤖 Eu, o Bot, para ajudar sempre que precisar!\n\nToque no robô azul abaixo para começar!",
+date: new Date().toISOString().split('T')[0],
+category: "boas-vindas",
+tags: ["inicio", "1INFO"],
+pinned: true,
+images: [],
+createdAt: new Date().toISOString()
+}];
+saveData();
+}
+renderContents();
+}
+
+function saveData() {
+STORAGE.set('contents', state.contents);
+}function initBotWithUser() {
+if(!currentUser) return;
+setTimeout(function() {
+const hour = new Date().getHours();
+const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+const today = dayNames[new Date().getDay()];
+let greeting = '';
+let emoji = '';
+
+if(currentUser.gender === 'M') {
+if(hour < 12) { greeting = 'Bom dia'; emoji = '🌅'; }
+else if(hour < 18) { greeting = 'Boa tarde'; emoji = '🌤️'; }
+else { greeting = 'Boa noite'; emoji = '🌙'; }
+} else {
+if(hour < 12) { greeting = 'Bom dia'; emoji = '🌅'; }
+else if(hour < 18) { greeting = 'Boa tarde'; emoji = '🌤️'; }
+else { greeting = 'Boa noite'; emoji = '🌙'; }
+}
+
+const isWeekend = new Date().getDay() === 0 || new Date().getDay() === 6;
+const hasClasses = !isWeekend;
+
+let msg = emoji + ' ' + greeting + ', ' + currentUser.firstName + '! ';
+
+if(hasClasses) {
+const nextClass = getNextClass();
+if(nextClass) {
+msg += 'Hoje é ' + today + ' e você tem aulas! 📚\n\nPróxima aula: ' + nextClass.time + ' - ' + nextClass.subject + ' (' + nextClass.professor + ')';
+} else {
+msg += 'Hoje é ' + today + '! 📚 Verifique seus horários abaixo.';
+}
+} else {
+msg += 'Hoje é ' + today + '! 🎉 Dia de descanso! Aproveite seu fim de semana.';
+}
+
+msg += '\n\nToque em mim para mais informações! 👇';
+botSpeak(msg, 10000);
+}, 1500);
+}
+
+function getNextClass() {
+const now = new Date();
+const currentHour = now.getHours();
+const currentMin = now.getMinutes();
+const currentTime = currentHour * 60 + currentMin;
+const day = now.getDay();
+
+if(day === 0 || day === 6) return null;
+
+const schedules = {
+1: [
+{time: "07:30", subject: "Algoritmo", professor: "Izael", start: 450},
+{time: "08:20", subject: "Redes de Computadores", professor: "Francismar", start: 500},
+{time: "09:10", subject: "Redes de Computadores", professor: "Francismar", start: 550},
+{time: "10:00", subject: "Biologia", professor: "Manuela", start: 600},
+{time: "10:20", subject: "Fund. Arquitetura de Computadores", professor: "Tiago", start: 620}
+],
+2: [
+{time: "07:30", subject: "Arte", professor: "Everton", start: 450},
+{time: "08:20", subject: "Química", professor: "Daise", start: 500},
+{time: "09:10", subject: "Iniciação Científica", professor: "Maianne", start: 550},
+{time: "10:00", subject: "Geografia", professor: "Paulo Cerqueira", start: 600},
+{time: "10:20", subject: "Geografia", professor: "Paulo Cerqueira", start: 620}
+],
+3: [
+{time: "07:30", subject: "Projeto Tecnológico Social", professor: "Élder", start: 450},
+{time: "08:20", subject: "Fund. Arquitetura de Computadores", professor: "Tiago", start: 500},
+{time: "09:10", subject: "Inglês", professor: "Ivna", start: 550},
+{time: "10:00", subject: "Sistemas Operacionais", professor: "Disney", start: 600},
+{time: "10:20", subject: "História", professor: "Albione", start: 620}
+],
+4: [
+{time: "07:30", subject: "Português", professor: "Mirian", start: 450},
+{time: "08:20", subject: "Português", professor: "Mirian", start: 500},
+{time: "09:10", subject: "Educação Digital", professor: "Maianne", start: 550},
+{time: "10:00", subject: "Educação Física", professor: "Ademário", start: 600},
+{time: "10:20", subject: "Química", professor: "Daise", start: 620}
+],
+5: [
+{time: "07:30", subject: "Estudo Aprofundado", professor: "Ivna", start: 450},
+{time: "08:20", subject: "Biologia", professor: "Manuela", start: 500},
+{time: "09:10", subject: "Matemática", professor: "Luciana", start: 550},
+{time: "10:00", subject: "Estudo Aprofundado", professor: "Ivna", start: 600},
+{time: "10:20", subject: "Mídias Digitais", professor: "Disney", start: 620}
+]
+};
+
+const todaySchedule = schedules[day] || [];
+for(let i = 0; i < todaySchedule.length; i++) {
+if(todaySchedule[i].start > currentTime) {
+return todaySchedule[i];
+}
+}
+return todaySchedule[todaySchedule.length - 1] || null;
+}
+
+function botSpeak(msg, duration) {
+duration = duration || 5000;
+const bubble = document.getElementById('botBubble');
+const msgDiv = document.getElementById('botMessage');
+const typing = document.getElementById('typingIndicator');
+
+bubble.classList.add('show');
+msgDiv.style.opacity = '0.3';
+typing.classList.add('show');
+
+setTimeout(function() {
+typing.classList.remove('show');
+msgDiv.style.opacity = '1';
+msgDiv.innerHTML = msg.replace(/\n/g, '<br>');
+setTimeout(function() {
+bubble.classList.remove('show');
+}, duration);
+}, 600);
+}
+
+function botInteract() {
+const char = document.getElementById('botCharacter');
+char.style.transform = 'scale(0.9)';
+setTimeout(function() {
+char.style.transform = '';
+}, 150);
+
+if(!currentUser) {
+botSpeak('👋 Olá! Complete seu cadastro para eu te conhecer melhor!', 4000);
+return;
+}
+
+const hour = new Date().getHours();
+const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+const today = dayNames[new Date().getDay()];
+const isWeekend = new Date().getDay() === 0 || new Date().getDay() === 6;
+
+let msgs = [];
+if(isWeekend) {
+msgs = [
+'🎉 ' + currentUser.firstName + ', aproveite seu fim de semana! Descanse bastante.',
+'😴 Fim de semana é para descansar, ' + currentUser.firstName + '!',
+'🌴 Sem aulas hoje, ' + currentUser.firstName + '! Curta seu dia.'
+];
+} else {
+const tips = [
+'📚 Não esqueça de anotar as tarefas!',
+'✏️ Leve seu material para as aulas!',
+'🎯 Foque nos estudos hoje!',
+'💪 Você consegue aprender tudo!',
+'⏰ Chegue pontualmente às 7:30, ' + currentUser.firstName + '!'
+];
+msgs = [
+'📚 ' + currentUser.firstName + ', hoje é ' + today + '! Verifique seus horários.',
+'👋 Oi ' + currentUser.firstName + '! Tudo pronto para as aulas de hoje?',
+tips[Math.floor(Math.random() * tips.length)],
+'🔔 Ative as notificações para não perder nada!',
+'📸 Você pode adicionar fotos aos avisos futuramente!'
+];
+}
+
+const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
+botSpeak(randomMsg, 5000);
+}
+
+function checkBotNews() {
+const pinned = state.contents.filter(function(c) { return c.pinned; }).length;
+const badge = document.getElementById('botBadge');
+if(pinned > 0) {
+badge.textContent = pinned > 9 ? '9+' : pinned;
+badge.classList.add('show');
+} else {
+badge.classList.remove('show');
+}
+}
+
+function changeDay(dayIndex) {
+state.currentDay = dayIndex;
+const tabs = document.querySelectorAll('.day-tab');
+for(let i = 0; i < tabs.length; i++) {
+tabs[i].classList.toggle('active', i === dayIndex);
+}
+
+const containers = document.querySelectorAll('.schedule-day-container');
+for(let i = 0; i < containers.length; i++) {
+containers[i].classList.toggle('active', i === dayIndex);
+}
+
+if(currentUser) {
+const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+const isWeekend = dayIndex === 0 || dayIndex === 6;
+const msg = isWeekend ? 
+dayNames[dayIndex] + '! Dia de descanso! 🎉' : 
+dayNames[dayIndex] + '! Confira suas aulas abaixo. 📚';
+setTimeout(function() {
+botSpeak(msg, 4000);
+}, 300);
+}
+}function renderContents(searchTerm) {
+searchTerm = searchTerm || '';
+const grid = document.getElementById('contentGrid');
+let filtered = state.contents;
+
+if(searchTerm) {
+const term = searchTerm.toLowerCase();
+filtered = state.contents.filter(function(c) {
+return c.title.toLowerCase().includes(term) || 
+c.desc.toLowerCase().includes(term) || 
+c.date.includes(term) ||
+c.tags.some(function(t) { return t.toLowerCase().includes(term); });
+});
+}
+
+const pinned = filtered.filter(function(c) { return c.pinned; });
+const normal = filtered.filter(function(c) { return !c.pinned; });
+const sorted = pinned.concat(normal);
+
+if(sorted.length === 0) {
+grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div><p>Nenhum aviso encontrado</p></div>';
+return;
+}
+
+let html = '';
+for(let i = 0; i < sorted.length; i++) {
+const c = sorted[i];
+let cardHtml = '<div class="content-card"><div class="card-header"><div>';
+cardHtml += '<div class="card-title">' + (c.pinned ? '📌 ' : '') + c.title + '</div>';
+cardHtml += '<div class="card-date">📅 ' + new Date(c.date).toLocaleDateString('pt-BR') + ' • ' + c.category.toUpperCase() + '</div>';
+cardHtml += '</div></div>';
+cardHtml += '<div class="card-content">' + c.desc.replace(/\n/g, '<br>') + '</div>';
+
+if(c.images.length > 0) {
+cardHtml += '<div class="card-images">';
+for(let j = 0; j < c.images.length; j++) {
+cardHtml += '<img src="' + c.images[j] + '" class="card-image" onclick="openLightbox(\'' + c.images[j] + '\')" alt="Foto">';
+}
+cardHtml += '</div>';
+}
+
+if(c.tags.length > 0) {
+cardHtml += '<div class="card-tags">';
+for(let k = 0; k < c.tags.length; k++) {
+cardHtml += '<span class="tag">#' + c.tags[k] + '</span>';
+}
+cardHtml += '</div>';
+}
+
+cardHtml += '</div>';
+html += cardHtml;
+}
+
+grid.innerHTML = html;
+}
+
+function searchContent() {
+const term = document.getElementById('searchBox').value;
+renderContents(term);
+}
+
+function openLightbox(src) {
+document.getElementById('lightboxImg').src = src;
+document.getElementById('lightbox').classList.add('active');
+}
+
+function closeLightbox() {
+document.getElementById('lightbox').classList.remove('active');
+}
+
+function initNotifications() {
+if('Notification' in window && Notification.permission === 'default') {
+setTimeout(function() {
+const msg = currentUser ? 
+currentUser.firstName + '! Deseja receber notificações às 5h e 17h sobre seus horários?' : 
+'Olá! Deseja receber notificações às 5h e 17h sobre seus horários?';
+if(confirm(msg)) {
+Notification.requestPermission().then(function(p) {
+if(p === 'granted') {
+scheduleNotifications();
+}
+});
+}
+}, 5000);
+}
+}
+
+function scheduleNotifications() {
+const now = new Date();
+const morning = new Date();
+morning.setHours(5, 0, 0, 0);
+const evening = new Date();
+evening.setHours(17, 0, 0, 0);
+
+if(now > morning) morning.setDate(morning.getDate() + 1);
+if(now > evening) evening.setDate(evening.getDate() + 1);
+
+const msToMorning = morning - now;
+const msToEvening = evening - now;
+
+setTimeout(function() {
+sendMorningNotif();
+setInterval(sendMorningNotif, 86400000);
+}, msToMorning);
+
+setTimeout(function() {
+sendEveningNotif();
+setInterval(sendEveningNotif, 86400000);
+}, msToEvening);
+}
+
+function sendMorningNotif() {
+const day = new Date().getDay();
+const isWeekend = day === 0 || day === 6;
+const firstName = currentUser ? currentUser.firstName : '';
+const title = '🌅 Bom dia' + (firstName ? ', ' + firstName : '') + '!';
+const body = isWeekend ? 
+'Dia de descanso! Aproveite seu fim de semana. 🎉' : 
+'Hora de ver seus horários! As aulas começam às 07:30. 📚';
+
+if(Notification.permission === 'granted') {
+new Notification(title, {body: body, icon: '⚡', badge: '⚡'});
+}
+}
+
+function sendEveningNotif() {
+const day = new Date().getDay();
+const isWeekend = day === 0 || day === 6;
+const firstName = currentUser ? currentUser.firstName : '';
+const title = '🌆 Boa tarde' + (firstName ? ', ' + firstName : '') + '!';
+const body = isWeekend ? 
+'Aproveite seu fim de semana! Descanse bastante. 😴' : 
+'Verifique os horários de amanhã e prepare-se para as aulas! 📖';
+
+if(Notification.permission === 'granted') {
+new Notification(title, {body: body, icon: '⚡', badge: '⚡'});
+}
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+initUser();
+changeDay(new Date().getDay());
+initNotifications();
+checkBotNews();
+});
+
+document.addEventListener('keydown', function(e) {
+if(e.key === 'Escape') closeLightbox();
+});
+</script>
+</body>
+</html>
